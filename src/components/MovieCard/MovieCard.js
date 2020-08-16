@@ -5,6 +5,8 @@ import CardHeader from "@material-ui/core/CardHeader";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
+import PropTypes from "prop-types";
+import { Grid } from "@material-ui/core";
 
 const useStyles = makeStyles(() => ({
 	root: {
@@ -27,15 +29,29 @@ const MovieCard = (props) => {
 			<CardMedia className={classes.media} image={imgSrc} />
 			<CardHeader title={title} subheader={tagline} />
 			<CardContent>
-				<Typography variant="body2" color="textSecondary" component="p">
-					{genres}
-				</Typography>
-				<Typography variant="body2" color="textSecondary" component="p">
-					{release_year}
-				</Typography>
+				<Grid container alignItems="center">
+					<Grid item xs>
+						<Typography gutterBottom variant="subtitle1">
+						{genres}
+						</Typography>
+					</Grid>
+					<Grid item>
+						<Typography variant="button" display="block" gutterBottom>
+						{release_year}
+						</Typography>
+					</Grid>
+				</Grid>
 			</CardContent>
 		</Card>
 	);
 };
 
 export default MovieCard;
+
+MovieCard.propTypes = {
+	title: PropTypes.string,
+	tagline: PropTypes.string,
+	genres: PropTypes.string,
+	release_year: PropTypes.number,
+	imgSrc: PropTypes.string,
+};

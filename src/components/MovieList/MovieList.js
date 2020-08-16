@@ -6,9 +6,11 @@ import CardList from "../common/Constant";
 const MovieList = () => {
 	const getMovieCard = (movieListObj) => {
 		return (
-			<Grid item container xs={12} sm={4} spacing={1}>
-				<MovieCard {...movieListObj} />
-			</Grid>
+			<React.Fragment>
+				<Grid item xs={12} sm={4} spacing={1}>
+					<MovieCard {...movieListObj} />
+				</Grid>
+			</React.Fragment>
 		);
 	};
 	return (

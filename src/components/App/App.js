@@ -8,15 +8,13 @@ import ErrorBoundary from "../common/ErrorBoundary";
 
 function App() {
 	return (
-		<div className="App">
-			<ErrorBoundary>
-				<Grid container direction="column">
-					<Header />
-					<MovieList />
-				</Grid>
-				<Footer />
-			</ErrorBoundary>
-		</div>
+		<ErrorBoundary>
+			<Grid container direction="column">
+				<Header />
+				<MovieList />
+			</Grid>
+			<Footer />
+		</ErrorBoundary>
 	);
 }
 
