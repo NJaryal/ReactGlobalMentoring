@@ -1,23 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
 import Search from "../Search/Search";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import AddIcon from "@material-ui/icons/Add";
+import Popup from "../common/Popup";
+import AddMovie from "../Movie/Add/AddMovie";
 
 const useStyles = makeStyles((theme) => ({
 	button: {
 		margin: theme.spacing(1),
 	},
 	MainLogo: {
-		color: '#EF5350',
-		position: 'relative'
-	}
+		color: "#EF5350",
+		position: "relative",
+	},
 }));
 
 const Header = () => {
 	const classes = useStyles();
+	const [openPopup, setOpenPopup] = useState(false);
 	return (
 		<div className="AppHeader">
 			<Grid item container spacing={2}>
@@ -33,6 +36,7 @@ const Header = () => {
 							color="default"
 							className={classes.button}
 							startIcon={<AddIcon />}
+							onClick={() => setOpenPopup(true)}
 						>
 							Add Movie
 						</Button>
@@ -47,6 +51,13 @@ const Header = () => {
 					<Search />
 				</Grid>
 			</Grid>
+			<Popup
+				title="Add Movie"
+				openPopup={openPopup}
+				setOpenPopup={setOpenPopup}
+			>
+				<AddMovie />
+			</Popup>
 		</div>
 	);
 };
