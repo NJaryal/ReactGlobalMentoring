@@ -1,12 +1,20 @@
-import React from "react";
+import React, { useState }  from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Card from "@material-ui/core/Card";
-import CardHeader from "@material-ui/core/CardHeader";
-import CardMedia from "@material-ui/core/CardMedia";
-import CardContent from "@material-ui/core/CardContent";
-import Typography from "@material-ui/core/Typography";
 import PropTypes from "prop-types";
-import { Grid } from "@material-ui/core";
+import {
+	Grid,
+	Card,
+	CardHeader,
+	CardMedia,
+	CardContent,
+	IconButton,
+	Popover,
+	Typography,
+	Link
+} from "@material-ui/core";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
+import Popup from "../common/Popup";
+import RemoveMovie from "../Movie/Remove/RemoveMovie";
 
 const useStyles = makeStyles(() => ({
 	root: {
@@ -15,33 +23,95 @@ const useStyles = makeStyles(() => ({
 		margin: "1rem",
 	},
 	media: {
-		height: 100,
-		paddingTop: "56.25%", // 16:9
+		height: "100vh",
+	},
+	editDeleteAction: {
+		background: "#c7c7c8",
+		color: "#fff",
+		float:'right'
 	},
 }));
 
 const MovieCard = (props) => {
 	const classes = useStyles();
-
+	const [anchorEl, setAnchorEl] = React.useState(null);
 	const { title, tagline, genres, release_year, imgSrc } = props;
+
+	const handleClick = (event) => {
+		setAnchorEl(event.currentTarget);
+	};
+
+	const handleClose = () => {
+		setAnchorEl(null);
+	};
+
+	const open = Boolean(anchorEl);
+	const id = open ? "simple-popover" : undefined;
+	const [openPopup, setOpenPopup] = useState(false);
+	const preventDefault = (event) => event.preventDefault();
+
 	return (
 		<Card className={classes.root}>
-			<CardMedia className={classes.media} image={imgSrc} />
+			<CardMedia className={classes.media} image={imgSrc}>
+				<IconButton
+					aria-label="movie edit/delete"
+					className={classes.editDeleteAction}
+					onClick={handleClick}
+				>
+					<MoreVertIcon />
+				</IconButton>
+			</CardMedia>
 			<CardHeader title={title} subheader={tagline} />
 			<CardContent>
 				<Grid container alignItems="center">
 					<Grid item xs>
 						<Typography gutterBottom variant="subtitle1">
-						{genres}
+							{genres}
 						</Typography>
 					</Grid>
 					<Grid item>
 						<Typography variant="button" display="block" gutterBottom>
-						{release_year}
+							{release_year}
 						</Typography>
 					</Grid>
 				</Grid>
 			</CardContent>
+
+			<Popover
+				id={id}
+				open={open}
+				anchorEl={anchorEl}
+				onClose={handleClose}
+				anchorOrigin={{
+					vertical: "bottom",
+					horizontal: "center",
+				}}
+				transformOrigin={{
+					vertical: "top",
+					horizontal: "center",
+				}}
+			>
+
+				<Typography className={classes.root}>
+					<Link href="#" onClick={preventDefault}>
+						Edit
+					</Link>
+				</Typography>
+
+				<Typography className={classes.root}>
+					<Link href="#" onClick={() => setOpenPopup(true)}>
+						Delete
+					</Link>
+				</Typography>
+			</Popover>
+
+			<Popup
+				title="DELETE MOVIE"
+				openPopup={openPopup}
+				setOpenPopup={setOpenPopup}
+			>
+				<RemoveMovie />
+			</Popup>
 		</Card>
 	);
 };
