@@ -1,4 +1,4 @@
-import React, { useState }  from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
 import {
@@ -10,7 +10,7 @@ import {
 	IconButton,
 	Popover,
 	Typography,
-	Link
+	Link,
 } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import Popup from "../common/Popup";
@@ -28,7 +28,7 @@ const useStyles = makeStyles(() => ({
 	editDeleteAction: {
 		background: "#c7c7c8",
 		color: "#fff",
-		float:'right'
+		float: "right",
 	},
 }));
 
@@ -37,13 +37,19 @@ const MovieCard = (props) => {
 	const [anchorEl, setAnchorEl] = React.useState(null);
 	const { title, tagline, genres, release_year, imgSrc } = props;
 
-	const handleClick = (event) => {
+	const handleClick = useCallback((event) => {
 		setAnchorEl(event.currentTarget);
-	};
+	}, []);
 
-	const handleClose = () => {
+	const handleClose = useCallback(() => {
 		setAnchorEl(null);
-	};
+	}, []);
+
+	useEffect(() => {
+		console.log(`Component mounted`);
+		// Update the document title using the browser API
+		document.title = `You clicked ${title} times`;
+	}, []);
 
 	const open = Boolean(anchorEl);
 	const id = open ? "simple-popover" : undefined;
@@ -91,7 +97,6 @@ const MovieCard = (props) => {
 					horizontal: "center",
 				}}
 			>
-
 				<Typography className={classes.root}>
 					<Link href="#" onClick={preventDefault}>
 						Edit
@@ -121,7 +126,7 @@ export default MovieCard;
 MovieCard.propTypes = {
 	title: PropTypes.string,
 	tagline: PropTypes.string,
-	genres: PropTypes.string,
+	genres: PropTypes.array,
 	release_year: PropTypes.number,
 	imgSrc: PropTypes.string,
 };
