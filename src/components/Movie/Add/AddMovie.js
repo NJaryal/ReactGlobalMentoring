@@ -8,6 +8,8 @@ import DatePicker from "../../common/datePicker";
 import DateFnsUtils from "@date-io/date-fns";
 import store from "../../../redux/createStore";
 import { uniqueId } from "uniqid";
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 
 import {
   TextField,
@@ -39,6 +41,26 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const validationSchema = yup.object({
+  title: yup
+    .string('Enter Title')
+    .required('Title is required'),
+    tagline: yup
+    .string('Enter movie Tagline')
+    .required('Overview is required'),
+    imgSrc: yup
+    .string('Enter movie url')
+    .required('Movie url is required'),
+    genres: yup
+    .string('Enter movie Genre')
+    .required('Genre is required'),
+    runtime: yup
+    .number('Enter movie Runtime')
+    .min(0, 'Runtime should be of minimum value 0')
+    .max(128, 'Runtime should be of maximum value 128')
+    .required('Runtime is required'),
+});
+
 export default function AddMovie(props) {
   const classes = useStyles();
   const generesOptions = [
@@ -52,77 +74,51 @@ export default function AddMovie(props) {
   ];
   var uniqid = require("uniqid");
   const movieId = uniqid("MOV-");
-  const [state, setState] = useState({
-    id: movieId,
-    title: "",
-    tagline: "",
-    release_year: "",
-    imgSrc: "",
-    genres: [],
-    runtime: 0,
+  const formik = useFormik({
+    initialValues: {
+      id: movieId,
+      title: '',
+      tagline: '',
+      release_year: new Date(),
+      imgSrc: '',
+      genres: [],
+      runtime: '',
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      if (values) {
+        dispatch(
+          moviesActions.addMovie({
+            values,
+          })
+        );
+      }
+      setSuccess(true);
+      store.dispatch({
+        type: actionTypes.GET_ALL_MOVIE,
+        movie: store.getState().movies.movies,
+      });
+    },
   });
 
-  const [redirect, setRedirect] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const dispatch = useDispatch();
-
-  const handleChange = (event) => {
-    console.log(
-      "handlechange called !!!!" +
-        event.target.name +
-        "value" +
-        event.target.value
-    );
-    setState({ ...state, [event.target.name]: event.target.value });
-  };
-
-  const addMovie = () => {
-    if (state) {
-      console.log("inside add movie !!!!!!!!!!!!!!" + JSON.stringify(state));
-      dispatch(
-        moviesActions.addMovie({
-          state,
-        })
-      );
-    }
-    console.log(
-      "store states !!!!!!!!!!!!!!!" + JSON.stringify(store.getState())
-    );
-    setSuccess(true);
-    store.dispatch({
-      type: actionTypes.GET_ALL_MOVIE,
-      movie: store.getState().movies.movies,
-    });
-  };
-
-  const updateMovie = () => {
-    if (state) {
-      dispatch(
-        moviesActions.updateMovie(state.id, {
-          state,
-        })
-      );
-    }
-  };
-
-  const deleteMovie = () => {
-    dispatch(moviesActions.deletMovie(state.id));
-  };
+   const dispatch = useDispatch();
 
   return (
-    <form className={classes.root} noValidate autoComplete="off">
+    <form onSubmit={formik.handleSubmit} className={classes.root}>
       {success == false && (
         <>
           <div>
             <TextField
-              required
               id="filled-Title"
               name="title"
               label="TITLE"
-              placeholder="Enter Movie Name"
               variant="filled"
-              onChange={(e) => handleChange(e)}
+              value={formik.values.title}
+              onChange={formik.handleChange}
+              error={formik.touched.title && Boolean(formik.errors.title)}
+              helperText={formik.touched.title && formik.errors.title}
             />
 
             <DatePicker
@@ -130,7 +126,11 @@ export default function AddMovie(props) {
               name="release_year"
               label="RELEASE DATE"
               placeholder="Select Date here"
-              onChange={(e) => handleChange(e)}
+              hintText="Select Date"
+              value={formik.values.release_year}
+              onChange={formik.handleChange}
+              error={formik.touched.release_year && Boolean(formik.errors.release_year)}
+              helperText={formik.touched.release_year && formik.errors.release_year}
             />
 
             <TextField
@@ -140,7 +140,10 @@ export default function AddMovie(props) {
               autoComplete=""
               variant="filled"
               placeholder="Movie URL here"
-              onChange={(e) => handleChange(e)}
+              value={formik.values.imgSrc}
+              onChange={formik.handleChange}
+              error={formik.touched.imgSrc && Boolean(formik.errors.imgSrc)}
+              helperText={formik.touched.imgSrc && formik.errors.imgSrc}
             />
             <FormControl variant="filled" className={classes.formControl}>
               <InputLabel id="demo-simple-select-label">
@@ -150,7 +153,10 @@ export default function AddMovie(props) {
                 name="genres"
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                onChange={(e) => handleChange(e)}
+                value={formik.values.genres}
+                onChange={formik.handleChange}
+                error={formik.touched.genres && Boolean(formik.errors.genres)}
+                helperText={formik.touched.genres && formik.errors.genres}
               >
                 {generesOptions.map((item) => (
                   <option key={item.name} value={item.value}>
@@ -165,7 +171,10 @@ export default function AddMovie(props) {
               label="OVERVIEW"
               placeholder="Overview Here"
               variant="filled"
-              onChange={(e) => handleChange(e)}
+              value={formik.values.tagline}
+              onChange={formik.handleChange}
+              error={formik.touched.tagline && Boolean(formik.errors.tagline)}
+              helperText={formik.touched.tagline && formik.errors.tagline}
             />
             <TextField
               id="filled-helperText"
@@ -173,17 +182,20 @@ export default function AddMovie(props) {
               label="RUNTIME"
               placeholder="Runtime Here"
               variant="filled"
-              onChange={(e) => handleChange(e)}
+              value={formik.values.runtime}
+              onChange={formik.handleChange}
+              error={formik.touched.runtime && Boolean(formik.errors.runtime)}
+              helperText={formik.touched.runtime && formik.errors.runtime}
             />
           </div>
 
-          <Button variant="outlined" color="secondary">
+          <Button type="reset" variant="outlined" color="secondary">
             Reset
           </Button>
-          <Button
+          <Button type="submit"
             variant="contained"
             color="secondary"
-            onClick={() => addMovie()}
+           
           >
             Submit
           </Button>

@@ -7,6 +7,8 @@ import Alert from "@material-ui/lab/Alert";
 import DatePicker from "../../common/datePicker";
 import DateFnsUtils from "@date-io/date-fns";
 import store from "../../../redux/createStore";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
 import {
   TextField,
@@ -39,111 +41,102 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const validationSchema = yup.object({
+  title: yup.string("Enter Title").required("Title is required"),
+  tagline: yup.string("Enter movie Tagline").required("Overview is required"),
+  imgSrc: yup.string("Enter movie url").required("Movie url is required"),
+  genres: yup.string("Enter movie Genre").required("Genre is required"),
+  runtime: yup
+    .number("Enter movie Runtime")
+    .min(0, "Runtime should be of minimum value 0")
+    .max(128, "Runtime should be of maximum value 128")
+    .required("Runtime is required"),
+});
+
 export default function UpdateMovie(props) {
   const classes = useStyles();
   const dispatch = useDispatch();
 
-  console.log(
-    "inside update componenet !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" +
-      JSON.stringify(props)
-  );
-  let [state, setState] = useState({
-    id: props.id,
-    title: props.title,
-    tagline: props.tagline,
-    release_year: props.release_year,
-    imgSrc: props.imgSrc,
-    genres: props.genres,
-    runtime: props.runtime,
+  const formik = useFormik({
+    initialValues: {
+      id: props.id,
+      title: props.title,
+      tagline: props.tagline,
+      release_year: props.release_year,
+      imgSrc: props.imgSrc,
+      genres: props.genres,
+      runtime: props.runtime,
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      if (values) {
+        dispatch(moviesActions.updateMovie(values.id, values));
+        console.log();
+        setSuccess(true);
+        store.dispatch({
+          type: actionTypes.GET_ALL_MOVIE,
+          movie: store.getState().movies.movies,
+        });
+      }
+    },
   });
 
   const generesOptions = props.genres;
-  const [redirect, setRedirect] = useState(false);
   const [success, setSuccess] = useState(false);
-
-  const handleChange = (event) => {
-    console.log(
-      "handlechange called !!!!" +
-        event.target.name +
-        "value" +
-        event.target.value
-    );
-    setState({ ...state, [event.target.name]: event.target.value });
-  };
-
-  const reset = (event) => {
-    console.log("reset called !" + JSON.stringify(props));
-    setState({
-      state: props
-    });
-
-    setState(prevState => {
-      let state = { ...prevState };// creating copy of state variable jasper
-      state.title = props.title;                     // update the name property, assign a new value                 
-      return { state };                                 // return new object jasper object
-    })
-
-    console.log("reset done !" + JSON.stringify(state));
-  };
-
-  const updateMovie = () => {
-    if (state) {
-      console.log("Updating movie  !!!!!!!!!!!!!!!" + JSON.stringify(state));
-      dispatch(moviesActions.updateMovie(state.id, state));
-      console.log(
-        "Updated movie  !!!!!!!!!!!!!!!" + JSON.stringify(store.getState())
-      );
-      setSuccess(true);
-    }
-  };
-
-  // console.log("genere!!!!!!!!!!!!!!!!!!"+props.genres[0])
-
   return (
-    <form className={classes.root} noValidate autoComplete="off">
+    <form onSubmit={formik.handleSubmit} className={classes.root}>
       {success == false && (
         <>
-        
           <div>
-
-          <TextField
-              required
-              defaultValue={state.id}
+            <TextField
               id="filled-ID"
               name="id"
               label="MOVIE   ID"
+              value={formik.values.id}
               variant="filled"
-              onChange={(e) => handleChange(e)}
+              onChange={formik.handleChange}
+              error={formik.touched.id && Boolean(formik.errors.id)}
+              helperText={formik.touched.id && formik.errors.id}
             />
-
             <TextField
-              required
-              defaultValue={state.title}
               id="filled-Title"
               name="title"
               label="TITLE"
               variant="filled"
-              onChange={(e) => handleChange(e)}
+              value={formik.values.title}
+              onChange={formik.handleChange}
+              error={formik.touched.title && Boolean(formik.errors.title)}
+              helperText={formik.touched.title && formik.errors.title}
             />
 
             <DatePicker
               id="filled-release"
-              defaultValue={new Date().setFullYear(
-                parseInt(state.release_year)
-              )}
               name="release_year"
               label="RELEASE DATE"
-              onChange={(e) => handleChange(e)}
+              placeholder="Select Date here"
+              hintText="Select Date"
+              value={formik.values.release_year}
+              onChange={formik.handleChange}
+              error={
+                formik.touched.release_year &&
+                Boolean(formik.errors.release_year)
+              }
+              helperText={
+                formik.touched.release_year && formik.errors.release_year
+              }
             />
 
             <TextField
               id="filled-password-input"
-              defaultValue={state.imgSrc}
               name="imgSrc"
               label="MOVIE URL"
-              autoComplete="current-password"
+              autoComplete=""
               variant="filled"
-              onChange={(e) => handleChange(e)}
+              placeholder="Movie URL here"
+              value={formik.values.imgSrc}
+              onChange={formik.handleChange}
+              error={formik.touched.imgSrc && Boolean(formik.errors.imgSrc)}
+              helperText={formik.touched.imgSrc && formik.errors.imgSrc}
             />
             <FormControl variant="filled" className={classes.formControl}>
               <InputLabel id="demo-simple-select-label">
@@ -151,47 +144,47 @@ export default function UpdateMovie(props) {
               </InputLabel>
               <Select
                 name="genres"
-                // defaultValue={props.genres[0]}
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                onChange={(e) => handleChange(e)}
+                value={formik.values.genres}
+                onChange={formik.handleChange}
+                error={formik.touched.genres && Boolean(formik.errors.genres)}
+                helperText={formik.touched.genres && formik.errors.genres}
               >
-                {/* {generesOptions.map((item) => (
-                  <option key={item.name} value={item.value}>
-                    {item.name}
-                  </option>
-                ))} */}
+                <option value={formik.values.genres}>
+                  {formik.values.genres}
+                </option>
               </Select>
-              {/* 
-Adding ultiple select */}
             </FormControl>
             <TextField
               id="filled-number"
               name="tagline"
-              defaultValue={state.tagline}
               label="OVERVIEW"
+              placeholder="Overview Here"
               variant="filled"
-              onChange={(e) => handleChange(e)}
+              value={formik.values.tagline}
+              onChange={formik.handleChange}
+              error={formik.touched.tagline && Boolean(formik.errors.tagline)}
+              helperText={formik.touched.tagline && formik.errors.tagline}
             />
             <TextField
               id="filled-helperText"
               name="runtime"
-              defaultValue={state.runtime}
               label="RUNTIME"
+              placeholder="Runtime Here"
               variant="filled"
-              onChange={(e) => handleChange(e)}
+              value={formik.values.runtime}
+              onChange={formik.handleChange}
+              error={formik.touched.runtime && Boolean(formik.errors.runtime)}
+              helperText={formik.touched.runtime && formik.errors.runtime}
             />
           </div>
 
-          <Button variant="outlined" color="secondary" onClick={() => reset()}>
+          <Button type="reset" variant="outlined" color="secondary">
             Reset
           </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => updateMovie()}
-          >
-            Save
+          <Button type="submit" variant="contained" color="secondary">
+            Submit
           </Button>
         </>
       )}
