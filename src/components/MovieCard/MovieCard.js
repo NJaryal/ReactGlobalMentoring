@@ -51,7 +51,6 @@ const MovieCard = (props) => {
 
 	useEffect(() => {
 		console.log(`Component mounted`);
-		// Update the document title using the browser API
 		document.title = `You clicked ${title} times`;
 	}, []);
 
@@ -83,7 +82,7 @@ const MovieCard = (props) => {
 					</Grid>
 					<Grid item>
 						<Typography variant="button" display="block" gutterBottom>
-							{release_year}
+							{release_year.toString()}
 						</Typography>
 					</Grid>
 				</Grid>
@@ -140,7 +139,7 @@ export default MovieCard;
 MovieCard.propTypes = {
 	title: PropTypes.string,
 	tagline: PropTypes.string,
-	genres: PropTypes.array,
-	release_year: PropTypes.string,
+	genres: PropTypes.string,
+	release_year: PropTypes.instanceOf(Date),
 	imgSrc: PropTypes.string,
 };
