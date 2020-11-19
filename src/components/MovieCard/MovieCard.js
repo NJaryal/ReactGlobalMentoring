@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { connect } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
+import UpdateMovie from '../Movie/Update/UpdateMovie'
 import PropTypes from "prop-types";
 import {
 	Grid,
@@ -15,6 +17,7 @@ import {
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import Popup from "../common/Popup";
 import RemoveMovie from "../Movie/Remove/RemoveMovie";
+import Movielist from '../MovieList/MovieList'
 
 const useStyles = makeStyles(() => ({
 	root: {
@@ -36,6 +39,7 @@ const MovieCard = (props) => {
 	const classes = useStyles();
 	const [anchorEl, setAnchorEl] = React.useState(null);
 	const { title, tagline, genres, release_year, imgSrc } = props;
+		  
 
 	const handleClick = useCallback((event) => {
 		setAnchorEl(event.currentTarget);
@@ -51,9 +55,11 @@ const MovieCard = (props) => {
 		document.title = `You clicked ${title} times`;
 	}, []);
 
+
 	const open = Boolean(anchorEl);
 	const id = open ? "simple-popover" : undefined;
 	const [openPopup, setOpenPopup] = useState(false);
+	const [openPopupEdit, setOpenPopupEdit] = useState(false);
 	const preventDefault = (event) => event.preventDefault();
 
 	return (
@@ -98,7 +104,7 @@ const MovieCard = (props) => {
 				}}
 			>
 				<Typography className={classes.root}>
-					<Link href="#" onClick={preventDefault}>
+					<Link href="#" onClick={()=>(setOpenPopupEdit(true) ,handleClose())}>
 						Edit
 					</Link>
 				</Typography>
@@ -115,8 +121,16 @@ const MovieCard = (props) => {
 				openPopup={openPopup}
 				setOpenPopup={setOpenPopup}
 			>
-				<RemoveMovie />
+				<RemoveMovie  {...props}/>
 			</Popup>
+
+			<Popup
+				title="EDIT MOVIE"
+				openPopup={openPopupEdit}
+				setOpenPopup={setOpenPopupEdit}
+			>
+				<UpdateMovie {...props}/>
+			</Popup >
 		</Card>
 	);
 };
@@ -127,6 +141,6 @@ MovieCard.propTypes = {
 	title: PropTypes.string,
 	tagline: PropTypes.string,
 	genres: PropTypes.array,
-	release_year: PropTypes.number,
+	release_year: PropTypes.string,
 	imgSrc: PropTypes.string,
 };

@@ -1,30 +1,50 @@
 import React from "react";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
+import { useDispatch, useSelector } from "react-redux";
+import moviesActions from "../../../redux/actions/moviesActions";
+import { connect } from "react-redux";
+import store from "../../../redux/createStore";
 
-export default function RemoveMovie() {
-	const [ setOpen] = React.useState(false);
+ function RemoveMovie(props) {
+  const [open,setOpen] = React.useState(false);
+  const dispatch = useDispatch();
 
-/* 	const handleClickOpen = () => {
-		setOpen(true);
-	}; */
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
 
-	const handleClose = () => {
-		setOpen(false);
-	};
+  const cancel = () => {
+    setOpen(false);
+  };
+  const confirm = () => {
+    deleteMovie();
+    setOpen(false);
+  };
 
-	return (
-		<div>
-			<Typography variant="h6" gutterBottom>
-				Are you sure you want to delete this movie ?
-			</Typography>
+  const deleteMovie = () => {
+	  console.log("deleteing movie !!"+JSON.stringify(props))
+	dispatch(moviesActions.deletMovie(props.id));
+	dispatch(moviesActions.getAllMovie(store.getState().movies.movies));
+  };
 
-			<Button autoFocus onClick={handleClose} color="primary">
-				Cancel
-			</Button>
-			<Button onClick={handleClose} color="primary">
-				Confirm
-			</Button>
-		</div>
-	);
+  
+  return (
+	  
+    <div>
+      <Typography variant="h6" gutterBottom>
+        Are you sure you want to delete this movie ?
+      </Typography>
+
+      <Button autoFocus onClick={cancel} color="primary">
+        Cancel
+      </Button>
+      <Button onClick={confirm} color="primary">
+        Confirm
+      </Button>
+    </div>
+  );
 }
+
+export default  RemoveMovie;
+

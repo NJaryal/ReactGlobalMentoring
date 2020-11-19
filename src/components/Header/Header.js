@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const Header = () => {
+const Header = (props) => {
 	const classes = useStyles();
 	const [openPopup, setOpenPopup] = useState(false);
 	return (
@@ -52,12 +52,12 @@ const Header = () => {
 				</Grid>
 			</Grid>
 			<Popup
-				title="Add Movie"
+				title="ADD MOVIE"
 				openPopup={openPopup}
 				setOpenPopup={setOpenPopup}
 			>
-				<AddMovie />
-			</Popup>
+				<AddMovie {...props}/>
+			</Popup >
 		</div>
 	);
 };
